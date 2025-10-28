@@ -1,4 +1,5 @@
 import prisma from '../models/connection';
+import { FileUtils } from '../utils/fileUtils';
 
 class NoteServices {
   private NOT_FOUND: string;
@@ -9,8 +10,11 @@ class NoteServices {
     this.getAll = this.getAll.bind(this);
     this.getById = this.getById.bind(this);
     this.create = this.create.bind(this);
+    this.createWithFile = this.createWithFile.bind(this);
     this.update = this.update.bind(this);
     this.delete = this.delete.bind(this);
+    this.uploadAudioFile = this.uploadAudioFile.bind(this);
+    this.serveAudioFile = this.serveAudioFile.bind(this);
   }
 
   async getAll(): Promise<{ code: number; data?: any; message?: string }> {
@@ -200,6 +204,104 @@ class NoteServices {
       return { code: 400, message: 'Error deleting note' };
     } finally {
       await prisma.$disconnect();
+    }
+  }
+
+  async createWithFile(
+    patientId: string,
+    rawText?: string,
+    transcribedText?: string,
+    aiSummary?: string,
+    soapFormat?: any,
+    file?: Express.Multer.File
+  ): Promise<{ code: number; note?: any; message?: string }> {
+    try {
+      let audioFilePath: string | undefined;
+      let noteType: 'TEXT' | 'AUDIO' | 'MIXED' = 'TEXT';
+
+      if (file) {
+        audioFilePath = FileUtils.getRelativePath(file.path);
+        noteType = 'AUDIO';
+      }
+
+      if (file && rawText) {
+        noteType = 'MIXED';
+      }
+
+      return await this.create(
+        patientId,
+        rawText,
+        transcribedText,
+        aiSummary,
+        noteType,
+        audioFilePath,
+        soapFormat
+      );
+    } catch (error) {
+      console.error(error);
+      return { code: 400, message: 'Error creating note with file' };
+    }
+  }
+
+  async uploadAudioFile(
+    file: Express.Multer.File
+  ): Promise<{ code: number; data?: any; message?: string }> {
+    try {
+      if (!file) {
+        return { code: 400, message: 'No audio file provided' };
+      }
+
+      const relativePath = FileUtils.getRelativePath(file.path);
+
+      const responseData = {
+        message: 'Audio file uploaded successfully',
+        filePath: relativePath,
+        originalName: file.originalname,
+        size: file.size,
+        mimetype: file.mimetype,
+      };
+
+      return { code: 200, data: responseData };
+    } catch (error) {
+      console.error('Upload error:', error);
+      return { code: 500, message: 'Internal server error' };
+    }
+  }
+
+  async serveAudioFile(
+    filePath: string
+  ): Promise<{ code: number; data?: any; message?: string }> {
+    try {
+      const fullPath = FileUtils.getFullPath(filePath);
+
+      if (!FileUtils.fileExists(fullPath)) {
+        return { code: 404, message: 'Audio file not found' };
+      }
+
+      const ext = FileUtils.getFileExtension(fullPath);
+      const mimeTypes: { [key: string]: string } = {
+        '.mp3': 'audio/mpeg',
+        '.wav': 'audio/wav',
+        '.m4a': 'audio/mp4',
+        '.aac': 'audio/aac',
+        '.ogg': 'audio/ogg',
+        '.webm': 'audio/webm',
+      };
+
+      const mimeType = mimeTypes[ext] || 'audio/mpeg';
+      const fileSize = FileUtils.getFileSize(fullPath);
+
+      const responseData = {
+        filePath: fullPath,
+        mimeType,
+        fileSize,
+        ext,
+      };
+
+      return { code: 200, data: responseData };
+    } catch (error) {
+      console.error('Error serving audio file:', error);
+      return { code: 500, message: 'Internal server error' };
     }
   }
 }
