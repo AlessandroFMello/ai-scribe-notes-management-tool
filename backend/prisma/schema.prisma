@@ -1,0 +1,45 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Patient {
+  id          String   @id @default(uuid())
+  name        String
+  dateOfBirth DateTime
+  patientId   String   @unique
+  phone       String?
+  email       String?
+  address     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  notes       Note[]
+
+  @@map("patients")
+}
+
+model Note {
+  id              String   @id @default(uuid())
+  patientId       String
+  rawText         String?
+  transcribedText String?
+  aiSummary       String?
+  noteType        NoteType @default(TEXT)
+  audioFilePath   String?
+  soapFormat      Json?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  patient         Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@map("notes")
+}
+
+enum NoteType {
+  TEXT
+  AUDIO
+  MIXED
+}
