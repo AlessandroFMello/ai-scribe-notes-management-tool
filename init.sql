@@ -1,5 +1,6 @@
--- Initialize the database
-CREATE DATABASE IF NOT EXISTS ai_scribe_db;
+-- Initialize the database extensions
+-- Note: The database is automatically created by PostgreSQL via POSTGRES_DB env var
+-- UUID extension is already enabled by default in PostgreSQL 13+
 
--- Create extensions if needed
+-- Create UUID extension if needed (for older PostgreSQL versions)
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
