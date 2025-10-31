@@ -37,4 +37,7 @@ router.delete("/:id", noteController.delete);
 // GET /api/notes/audio/:filePath - Serve audio files
 router.get("/audio/*", noteController.serveAudio);
 
+// POST /api/notes/:id/process-ai - Process note with AI
+router.post("/:id/process-ai", noteController.processWithAI);
+
 export default router;

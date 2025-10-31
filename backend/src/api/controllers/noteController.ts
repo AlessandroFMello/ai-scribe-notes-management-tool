@@ -1,6 +1,6 @@
-import { Request, Response } from 'express';
-import NoteServices from '../services/noteServices';
-import Controller from './controller';
+import { Request, Response } from "express";
+import NoteServices from "../services/noteServices";
+import Controller from "./controller";
 
 class NoteController extends Controller {
   private noteService: NoteServices;
@@ -13,6 +13,7 @@ class NoteController extends Controller {
     this.update = this.update.bind(this);
     this.uploadAudio = this.uploadAudio.bind(this);
     this.serveAudio = this.serveAudio.bind(this);
+    this.processWithAI = this.processWithAI.bind(this);
   }
 
   async create(req: Request, res: Response): Promise<void> {
@@ -37,7 +38,7 @@ class NoteController extends Controller {
       res.status(code).json(note);
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: 'Internal server error.' });
+      res.status(500).json({ message: "Internal server error." });
     }
   }
 
@@ -71,7 +72,7 @@ class NoteController extends Controller {
       res.status(code).json(note);
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: 'Internal server error.' });
+      res.status(500).json({ message: "Internal server error." });
     }
   }
 
@@ -88,8 +89,8 @@ class NoteController extends Controller {
 
       res.status(code).json(data);
     } catch (error) {
-      console.error('Upload error:', error);
-      res.status(500).json({ error: 'Internal server error' });
+      console.error("Upload error:", error);
+      res.status(500).json({ error: "Internal server error" });
     }
   }
 
@@ -104,21 +105,38 @@ class NoteController extends Controller {
         return;
       }
 
-      res.setHeader('Content-Type', data.mimeType);
-      res.setHeader('Content-Length', data.fileSize);
-      res.setHeader('Accept-Ranges', 'bytes');
+      res.setHeader("Content-Type", data.mimeType);
+      res.setHeader("Content-Length", data.fileSize);
+      res.setHeader("Accept-Ranges", "bytes");
 
-      const fs = require('fs');
+      const fs = require("fs");
       const fileStream = fs.createReadStream(data.filePath);
       fileStream.pipe(res);
 
-      fileStream.on('error', (error: any) => {
-        console.error('Error streaming file:', error);
-        res.status(500).json({ error: 'Error streaming audio file' });
+      fileStream.on("error", (error: any) => {
+        console.error("Error streaming file:", error);
+        res.status(500).json({ error: "Error streaming audio file" });
       });
     } catch (error) {
-      console.error('Error serving audio file:', error);
-      res.status(500).json({ error: 'Internal server error' });
+      console.error("Error serving audio file:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  }
+
+  async processWithAI(req: Request, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+      const { code, note, message } = await this.noteService.processWithAI(id);
+
+      if (!note) {
+        res.status(code).json({ message });
+        return;
+      }
+
+      res.status(code).json(note);
+    } catch (error) {
+      console.error("AI processing error:", error);
+      res.status(500).json({ error: "Internal server error" });
     }
   }
 }
