@@ -38,8 +38,6 @@ class PatientServices {
     } catch (error) {
       console.error(error);
       return { code: 400, message: 'Error retrieving patients' };
-    } finally {
-      await prisma.$disconnect();
     }
   }
 
@@ -66,8 +64,6 @@ class PatientServices {
     } catch (error) {
       console.error(error);
       return { code: 400, message: 'Error retrieving patient' };
-    } finally {
-      await prisma.$disconnect();
     }
   }
 
@@ -107,8 +103,6 @@ class PatientServices {
     } catch (error) {
       console.error(error);
       return { code: 400, message: 'Error creating patient' };
-    } finally {
-      await prisma.$disconnect();
     }
   }
 
@@ -152,8 +146,6 @@ class PatientServices {
     } catch (error) {
       console.error(error);
       return { code: 400, message: 'Error updating patient' };
-    } finally {
-      await prisma.$disconnect();
     }
   }
 
@@ -176,8 +168,6 @@ class PatientServices {
     } catch (error) {
       console.error(error);
       return { code: 400, message: 'Error deleting patient' };
-    } finally {
-      await prisma.$disconnect();
     }
   }
 }

@@ -47,8 +47,6 @@ class NoteServices {
     } catch (error) {
       console.error(error);
       return { code: 400, message: "Error retrieving notes" };
-    } finally {
-      await prisma.$disconnect();
     }
   }
 
@@ -71,8 +69,6 @@ class NoteServices {
     } catch (error) {
       console.error(error);
       return { code: 400, message: "Error retrieving note" };
-    } finally {
-      await prisma.$disconnect();
     }
   }
 
@@ -126,8 +122,6 @@ class NoteServices {
     } catch (error) {
       console.error(error);
       return { code: 400, message: "Error creating note" };
-    } finally {
-      await prisma.$disconnect();
     }
   }
 
@@ -183,8 +177,6 @@ class NoteServices {
     } catch (error) {
       console.error(error);
       return { code: 400, message: "Error updating note" };
-    } finally {
-      await prisma.$disconnect();
     }
   }
 
@@ -206,8 +198,6 @@ class NoteServices {
     } catch (error) {
       console.error(error);
       return { code: 400, message: "Error deleting note" };
-    } finally {
-      await prisma.$disconnect();
     }
   }
 
@@ -400,8 +390,6 @@ class NoteServices {
     } catch (error) {
       console.error("AI processing error:", error);
       return { code: 500, message: "Error processing note with AI" };
-    } finally {
-      await prisma.$disconnect();
     }
   }
 }
