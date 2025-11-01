@@ -32,7 +32,6 @@ services:
       - NODE_ENV=production
       - DATABASE_URL=${DATABASE_URL:-postgresql://postgres:password@postgres:5432/ai_scribe_db?schema=public}
       - PORT=${PORT:-3000}
-      - OPENAI_API_KEY=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
       - UPLOAD_DIR=${UPLOAD_DIR:-./uploads}
       - MAX_FILE_SIZE=${MAX_FILE_SIZE:-10485760}
     ports:
