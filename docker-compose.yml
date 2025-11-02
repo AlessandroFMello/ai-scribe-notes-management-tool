@@ -28,14 +28,15 @@ services:
     restart: unless-stopped
     env_file:
       - .env
+    ports:
+      - "3000:3000"
     environment:
       - NODE_ENV=production
       - DATABASE_URL=${DATABASE_URL:-postgresql://postgres:password@postgres:5432/ai_scribe_db?schema=public}
       - PORT=${PORT:-3000}
       - UPLOAD_DIR=${UPLOAD_DIR:-./uploads}
       - MAX_FILE_SIZE=${MAX_FILE_SIZE:-10485760}
-    ports:
-      - "3000:3000"
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
     volumes:
       - ./backend/uploads:/app/uploads
     depends_on:

@@ -1,6 +1,6 @@
 # Backend Dockerfile for AI Scribe Notes Management Tool
 
-FROM node:18-slim AS builder
+FROM node:20-slim AS builder
 
 # Install OpenSSL for Prisma compatibility
 RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
@@ -25,7 +25,7 @@ RUN npx prisma generate
 RUN npm run build
 
 # Production stage
-FROM node:18-slim AS production
+FROM node:20-slim AS production
 
 # Install OpenSSL for Prisma compatibility
 RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
