@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
-import { fetchNote } from '../services/api';
+import { fetchNote, deleteNote } from '../services/api';
 import type { Note } from '../types';
 
 interface NoteDetailProps {
   noteId: string;
   onClose: () => void;
+  onNoteDeleted?: () => void;
 }
 
 /**
@@ -41,10 +42,16 @@ function getAudioUrl(audioFilePath: string): string {
   return `http://localhost:3000/api/notes/audio/${audioFilePath}`;
 }
 
-export default function NoteDetail({ noteId, onClose }: NoteDetailProps) {
+export default function NoteDetail({
+  noteId,
+  onClose,
+  onNoteDeleted,
+}: NoteDetailProps) {
   const [note, setNote] = useState<Note | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     loadNote();
@@ -61,6 +68,25 @@ export default function NoteDetail({ noteId, onClose }: NoteDetailProps) {
       console.error('Error loading note:', err);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleDelete() {
+    try {
+      setDeleting(true);
+      await deleteNote(noteId);
+      // Trigger refresh and close detail view
+      if (onNoteDeleted) {
+        onNoteDeleted();
+      } else {
+        onClose();
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to delete note');
+      console.error('Error deleting note:', err);
+      setShowDeleteConfirm(false);
+    } finally {
+      setDeleting(false);
     }
   }
 
@@ -174,20 +200,134 @@ export default function NoteDetail({ noteId, onClose }: NoteDetailProps) {
         >
           ← Back to Notes
         </button>
-        <span
-          style={{
-            backgroundColor: badgeColor,
-            color: 'white',
-            padding: '6px 16px',
-            borderRadius: '16px',
-            fontSize: '12px',
-            fontWeight: '600',
-            textTransform: 'uppercase',
-          }}
-        >
-          {note.noteType}
-        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <button
+            onClick={() => setShowDeleteConfirm(true)}
+            disabled={deleting}
+            style={{
+              padding: '8px 16px',
+              backgroundColor: '#dc2626',
+              color: 'white',
+              border: 'none',
+              borderRadius: '6px',
+              cursor: deleting ? 'not-allowed' : 'pointer',
+              fontSize: '14px',
+              fontWeight: '500',
+              opacity: deleting ? 0.6 : 1,
+            }}
+          >
+            {deleting ? 'Deleting...' : 'Delete Note'}
+          </button>
+          <span
+            style={{
+              backgroundColor: badgeColor,
+              color: 'white',
+              padding: '6px 16px',
+              borderRadius: '16px',
+              fontSize: '12px',
+              fontWeight: '600',
+              textTransform: 'uppercase',
+            }}
+          >
+            {note.noteType}
+          </span>
+        </div>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      {showDeleteConfirm && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+          }}
+          onClick={() => !deleting && setShowDeleteConfirm(false)}
+        >
+          <div
+            style={{
+              backgroundColor: '#ffffff',
+              borderRadius: '8px',
+              padding: '24px',
+              maxWidth: '400px',
+              width: '90%',
+              boxShadow: '0 10px 25px rgba(0, 0, 0, 0.2)',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3
+              style={{
+                margin: '0 0 16px 0',
+                fontSize: '20px',
+                fontWeight: '600',
+                color: '#111827',
+              }}
+            >
+              Delete Note
+            </h3>
+            <p
+              style={{
+                margin: '0 0 24px 0',
+                fontSize: '14px',
+                color: '#6b7280',
+                lineHeight: '1.5',
+              }}
+            >
+              Are you sure you want to delete this note? This action cannot be
+              undone and will permanently remove the note from the system.
+            </p>
+            <div
+              style={{
+                display: 'flex',
+                gap: '12px',
+                justifyContent: 'flex-end',
+              }}
+            >
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                disabled={deleting}
+                style={{
+                  padding: '8px 16px',
+                  backgroundColor: '#ffffff',
+                  color: '#374151',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '6px',
+                  cursor: deleting ? 'not-allowed' : 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  opacity: deleting ? 0.6 : 1,
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={deleting}
+                style={{
+                  padding: '8px 16px',
+                  backgroundColor: '#dc2626',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: deleting ? 'not-allowed' : 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  opacity: deleting ? 0.6 : 1,
+                }}
+              >
+                {deleting ? 'Deleting...' : 'Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div style={{ display: 'flex', gap: '24px', alignItems: 'flex-start' }}>
         {/* Main Content */}

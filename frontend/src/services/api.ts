@@ -166,3 +166,35 @@ export async function createNote(
     throw error instanceof Error ? error : new Error('Failed to create note');
   }
 }
+
+/**
+ * Deletes a note by ID
+ * @param id - ID of the note to delete
+ */
+export async function deleteNote(id: string): Promise<void> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/notes/${id}`, {
+      method: 'DELETE',
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(
+        errorData.message || `HTTP error! status: ${response.status}`
+      );
+    }
+
+    const result = await response.json();
+
+    // Backend may return message directly OR wrapped in {code, message}
+    if (result.code === 200) {
+      return;
+    }
+
+    // If no code field, assume success if response was ok
+    return;
+  } catch (error) {
+    console.error('Error deleting note:', error);
+    throw error instanceof Error ? error : new Error('Failed to delete note');
+  }
+}

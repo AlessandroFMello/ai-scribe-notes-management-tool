@@ -23,6 +23,15 @@ function App() {
     setSelectedNoteId(null);
   }
 
+  function handleNoteDeleted() {
+    setRefreshKey((prev) => prev + 1);
+    setSelectedNoteId(null);
+  }
+
+  function handleNoteDeletedFromList() {
+    setRefreshKey((prev) => prev + 1);
+  }
+
   if (selectedNoteId) {
     return (
       <div className="app">
@@ -58,7 +67,11 @@ function App() {
         </header>
 
         <main className="container">
-          <NoteDetail noteId={selectedNoteId} onClose={handleCloseDetail} />
+          <NoteDetail
+            noteId={selectedNoteId}
+            onClose={handleCloseDetail}
+            onNoteDeleted={handleNoteDeleted}
+          />
         </main>
       </div>
     );
@@ -98,7 +111,11 @@ function App() {
           <NoteForm onSuccess={handleNoteCreated} />
         </div>
 
-        <NotesList refreshTrigger={refreshKey} onNoteClick={handleNoteClick} />
+        <NotesList
+          refreshTrigger={refreshKey}
+          onNoteClick={handleNoteClick}
+          onNoteDeleted={handleNoteDeletedFromList}
+        />
       </main>
     </div>
   );

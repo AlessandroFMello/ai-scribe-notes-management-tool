@@ -6,11 +6,13 @@ import NoteCard from './NoteCard';
 interface NotesListProps {
   refreshTrigger?: number; // Use this to trigger refresh (instead of React's special 'key' prop)
   onNoteClick?: (noteId: string) => void;
+  onNoteDeleted?: () => void;
 }
 
 export default function NotesList({
   refreshTrigger,
   onNoteClick,
+  onNoteDeleted,
 }: NotesListProps) {
   const [notes, setNotes] = useState<Note[]>([]);
   const [allNotes, setAllNotes] = useState<Note[]>([]);
@@ -62,6 +64,12 @@ export default function NotesList({
     // Navigate to note detail view - handled by parent
     if (onNoteClick) {
       onNoteClick(noteId);
+    }
+  }
+
+  function handleNoteDelete(_noteId: string) {
+    if (onNoteDeleted) {
+      onNoteDeleted();
     }
   }
 
@@ -121,7 +129,9 @@ export default function NotesList({
     return (
       <div style={{ textAlign: 'center', padding: '40px' }}>
         <p style={{ color: '#6b7280', fontSize: '18px' }}>
-          {selectedPatientId ? 'No notes found for selected patient' : 'No notes found'}
+          {selectedPatientId
+            ? 'No notes found for selected patient'
+            : 'No notes found'}
         </p>
         <p style={{ color: '#9ca3af', fontSize: '14px' }}>
           {selectedPatientId
@@ -161,7 +171,14 @@ export default function NotesList({
           gap: '16px',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1 }}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '16px',
+            flex: 1,
+          }}
+        >
           <h1
             style={{
               margin: '0',
@@ -172,7 +189,7 @@ export default function NotesList({
           >
             Clinical Notes
           </h1>
-          
+
           {/* Patient Filter */}
           <div style={{ minWidth: '200px' }}>
             <label
@@ -212,12 +229,15 @@ export default function NotesList({
             </select>
           </div>
         </div>
-        
-        <div style={{ fontSize: '14px', color: '#6b7280', whiteSpace: 'nowrap' }}>
+
+        <div
+          style={{ fontSize: '14px', color: '#6b7280', whiteSpace: 'nowrap' }}
+        >
           {notes.length} {notes.length === 1 ? 'note' : 'notes'}
           {selectedPatientId && notes.length !== allNotes.length && (
             <span style={{ color: '#9ca3af' }}>
-              {' '}(of {allNotes.length} total)
+              {' '}
+              (of {allNotes.length} total)
             </span>
           )}
         </div>
@@ -225,7 +245,12 @@ export default function NotesList({
 
       <div>
         {notes.map((note) => (
-          <NoteCard key={note.id} note={note} onClick={handleNoteClick} />
+          <NoteCard
+            key={note.id}
+            note={note}
+            onClick={handleNoteClick}
+            onDelete={onNoteDeleted ? handleNoteDelete : undefined}
+          />
         ))}
       </div>
     </div>
