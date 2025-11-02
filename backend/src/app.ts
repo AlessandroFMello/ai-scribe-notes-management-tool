@@ -44,7 +44,7 @@ class App {
       this.errorHandler();
 
       this.app.listen(port, '0.0.0.0', () => {
-        console.log(`🚀 Server running here 👉 http://localhost:${port}`);
+        console.log(`Server running here -> http://localhost:${port}`);
       });
     } catch (err) {
       console.error(err);

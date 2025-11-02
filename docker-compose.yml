@@ -45,6 +45,24 @@ services:
     networks:
       - ai-scribe-network
 
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL:-}
+    container_name: ai-scribe-frontend
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "3001:80"
+    depends_on:
+      backend:
+        condition: service_started
+    networks:
+      - ai-scribe-network
+
 volumes:
   postgres_data:
 
