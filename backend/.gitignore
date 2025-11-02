@@ -77,3 +77,8 @@ Thumbs.db
 prisma/migrations/migration_lock.toml
 prisma/*.db
 prisma/.env
+
+# ====================================
+# Uploads Directory
+# ====================================
+uploads/
