@@ -1,6 +1,7 @@
-import OpenAI from "openai";
-import fs from "fs";
-import path from "path";
+import OpenAI from 'openai';
+import fs from 'fs';
+import path from 'path';
+import { SoapFormat } from '../../types';
 
 class AIServices {
   private openai: OpenAI;
@@ -25,7 +26,7 @@ class AIServices {
       if (!process.env.OPENAI_API_KEY) {
         return {
           code: 500,
-          message: "OpenAI API key not configured",
+          message: 'OpenAI API key not configured',
         };
       }
 
@@ -34,16 +35,16 @@ class AIServices {
       if (!fs.existsSync(fullPath)) {
         return {
           code: 404,
-          message: "Audio file not found",
+          message: 'Audio file not found',
         };
       }
 
       const audioFile = fs.createReadStream(fullPath);
 
       const transcription = await this.openai.audio.transcriptions.create({
-        file: audioFile,
-        model: "whisper-1",
-        response_format: "text",
+        file: audioFile as any,
+        model: 'whisper-1',
+        response_format: 'text',
       });
 
       return {
@@ -51,10 +52,10 @@ class AIServices {
         transcribedText: transcription as string,
       };
     } catch (error) {
-      console.error("Transcription error:", error);
+      console.error('Transcription error:', error);
       return {
         code: 500,
-        message: "Error transcribing audio file",
+        message: 'Error transcribing audio file',
       };
     }
   }
@@ -67,33 +68,33 @@ class AIServices {
    */
   async generateSummary(
     text: string,
-    noteType: "TEXT" | "AUDIO" | "MIXED" = "TEXT"
+    noteType: 'TEXT' | 'AUDIO' | 'MIXED' = 'TEXT'
   ): Promise<{
     code: number;
     aiSummary?: string;
-    soapFormat?: any;
+    soapFormat?: SoapFormat;
     message?: string;
   }> {
     try {
       if (!process.env.OPENAI_API_KEY) {
         return {
           code: 500,
-          message: "OpenAI API key not configured",
+          message: 'OpenAI API key not configured',
         };
       }
 
       const prompt = this.buildSummaryPrompt(text, noteType);
 
       const completion = await this.openai.chat.completions.create({
-        model: "gpt-3.5-turbo",
+        model: 'gpt-3.5-turbo',
         messages: [
           {
-            role: "system",
+            role: 'system',
             content:
-              "You are a medical AI assistant that helps create clinical notes summaries and SOAP format documentation. Always respond with valid JSON format.",
+              'You are a medical AI assistant that helps create clinical notes summaries and SOAP format documentation. Always respond with valid JSON format.',
           },
           {
-            role: "user",
+            role: 'user',
             content: prompt,
           },
         ],
@@ -106,7 +107,7 @@ class AIServices {
       if (!response) {
         return {
           code: 500,
-          message: "No response from AI service",
+          message: 'No response from AI service',
         };
       }
 
@@ -118,17 +119,16 @@ class AIServices {
           soapFormat: parsedResponse.soap,
         };
       } catch (parseError) {
-        // Fallback if JSON parsing fails
         return {
           code: 200,
           aiSummary: response,
         };
       }
     } catch (error) {
-      console.error("Summary generation error:", error);
+      console.error('Summary generation error:', error);
       return {
         code: 500,
-        message: "Error generating AI summary",
+        message: 'Error generating AI summary',
       };
     }
   }
@@ -173,24 +173,21 @@ If any SOAP section is not applicable, use "Not documented" as the value.
     code: number;
     transcribedText?: string;
     aiSummary?: string;
-    soapFormat?: any;
+    soapFormat?: SoapFormat;
     message?: string;
   }> {
     try {
-      // Step 1: Transcribe audio
       const transcriptionResult = await this.transcribeAudio(audioFilePath);
 
       if (transcriptionResult.code !== 200) {
         return transcriptionResult;
       }
 
-      // Step 2: Combine transcribed text with existing text
       const combinedText = existingText
         ? `${existingText}\n\nTranscribed: ${transcriptionResult.transcribedText}`
         : transcriptionResult.transcribedText!;
 
-      // Step 3: Generate summary
-      const noteType = existingText ? "MIXED" : "AUDIO";
+      const noteType = existingText ? 'MIXED' : 'AUDIO';
       const summaryResult = await this.generateSummary(combinedText, noteType);
 
       if (summaryResult.code !== 200) {
@@ -208,14 +205,13 @@ If any SOAP section is not applicable, use "Not documented" as the value.
         soapFormat: summaryResult.soapFormat,
       };
     } catch (error) {
-      console.error("Audio processing error:", error);
+      console.error('Audio processing error:', error);
       return {
         code: 500,
-        message: "Error processing audio note",
+        message: 'Error processing audio note',
       };
     }
   }
 }
 
 export default AIServices;
-
