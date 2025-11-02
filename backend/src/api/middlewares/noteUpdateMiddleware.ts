@@ -47,7 +47,6 @@ const noteUpdateValidationMiddleware = (
     const error = result.error.errors[0];
     const errorMessage = error.message;
 
-    // Determine status code based on error type
     let statusCode = 400;
     if (errorMessage.includes("required")) {
       statusCode = 422;

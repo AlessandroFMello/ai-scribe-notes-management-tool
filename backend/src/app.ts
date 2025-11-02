@@ -16,7 +16,6 @@ class App {
 
     this.app.use(
       cors({
-        // You can replace '*' with a whitelist for better security in prod
         origin: ['http://localhost:3001', 'http://localhost:3002'],
         methods: ['GET', 'POST', 'DELETE', 'OPTIONS', 'PUT', 'PATCH'],
         allowedHeaders: ['Content-Type', 'Authorization'],
@@ -29,7 +28,6 @@ class App {
     this.app.use('/api/patients', patientRouter);
     this.app.use('/api/notes', noteRouter);
 
-    // 404 handler
     this.app.use('*', (_req: Request, res: Response) => {
       return res.status(404).json({ message: 'Route not found' });
     });

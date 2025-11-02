@@ -2,7 +2,6 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 
-// Create uploads directory if it doesn't exist
 const uploadDir = './uploads';
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
@@ -61,12 +60,11 @@ const upload = multer({
   storage: storage,
   fileFilter: fileFilter,
   limits: {
-    fileSize: 10 * 1024 * 1024, // 10MB limit
-    files: 1, // Only one file at a time
+    fileSize: 10 * 1024 * 1024,
+    files: 1,
   },
 });
 
-// Middleware for single file upload
 export const uploadSingle = upload.single('audioFile');
 
 export const handleUploadError = (err: any, req: any, res: any, next: any) => {

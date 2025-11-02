@@ -159,7 +159,6 @@ class PatientServices {
         return { code: 404, message: this.NOT_FOUND };
       }
 
-      // For now, we'll do a hard delete since we don't have a status field
       await prisma.patient.delete({
         where: { id },
       });
