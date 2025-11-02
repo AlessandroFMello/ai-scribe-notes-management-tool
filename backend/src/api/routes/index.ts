@@ -1,4 +1,5 @@
-import patientRouter from "./patientRouter";
-import noteRouter from "./noteRouter";
+import patientRouter from './patientRouter';
+import noteRouter from './noteRouter';
+import healthRouter from './healthRouter';
 
-export { patientRouter, noteRouter };
+export { patientRouter, noteRouter, healthRouter };

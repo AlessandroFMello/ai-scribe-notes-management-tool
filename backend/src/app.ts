@@ -1,7 +1,7 @@
 import express, { Express, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import errorMiddleware from './api/middlewares/errorMiddleware';
-import { patientRouter, noteRouter } from './api/routes/index';
+import { patientRouter, noteRouter, healthRouter } from './api/routes/index';
 
 class App {
   private app: Express;
@@ -25,6 +25,7 @@ class App {
   }
 
   private routes(): void {
+    this.app.use('/api/health', healthRouter);
     this.app.use('/api/patients', patientRouter);
     this.app.use('/api/notes', noteRouter);
 
