@@ -44,13 +44,9 @@ class Controller {
     }
   }
 
-  async create(req: Request, res: Response): Promise<void> {
-    // Implement the specific creation method in the child class
-  }
+  async create(req: Request, res: Response): Promise<void> {}
 
-  async update(req: Request, res: Response): Promise<void> {
-    // Implement the specific update method in the child class
-  }
+  async update(req: Request, res: Response): Promise<void> {}
 
   async delete(req: Request, res: Response) {
     try {
